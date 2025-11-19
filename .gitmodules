@@ -1,0 +1,6 @@
+[submodule "schemion-inference"]
+	path = schemion-inference
+	url = https://github.com/Schemion/schemion-inference.git
+[submodule "schemion-api"]
+	path = schemion-api
+	url = https://github.com/Schemion/schemion-api.git

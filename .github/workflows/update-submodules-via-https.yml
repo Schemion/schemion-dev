@@ -1,0 +1,36 @@
+name: Update Submodules via HTTPS
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update-submodules:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout main repo with submodules
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Update all submodules to latest commits on their branches
+        run: |
+          git submodule update --remote --merge
+
+      - name: Commit and push if submodules changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          if git status --porcelain | grep -q '^ M\|^A \|^ D\|^??'; then
+            git add .
+            git commit -m "chore: update submodules to latest"
+            git push
+          else
+            echo "No submodule updates found, nothing to commit."
+          fi
