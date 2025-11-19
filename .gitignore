@@ -1,1 +1,3 @@
 .idea/
+.venv
+system_model_importer/models/*
