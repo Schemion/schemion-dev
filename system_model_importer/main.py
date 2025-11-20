@@ -74,7 +74,7 @@ def add_model_to_db(model_name, version, architecture, minio_path):
 def upload_to_minio(file_path, model_name):
     file_ext = os.path.splitext(file_path)[1]
     new_filename = f"{uuid.uuid4()}_{model_name.replace(' ', '_')}{file_ext}"
-    minio_path = f"{new_filename}"
+    minio_path = f"system/{new_filename}"
 
     minio_client.fput_object(
         MINIO_BUCKET,
