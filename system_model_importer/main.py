@@ -42,6 +42,7 @@ class Model(Base):
     name = Column(String(255), nullable=False)
     version = Column(String(50), nullable=False)
     architecture = Column(String(50), nullable=False)
+    architecture_profile = Column(String(50), nullable=False)
     minio_model_path = Column(String(512), nullable=False)
     status = Column(Enum(ModelStatus), default=ModelStatus.completed)
     user_id = Column(UUID(as_uuid=True), nullable=True)
@@ -59,6 +60,7 @@ def add_model_to_db(model_name, version, architecture, minio_path):
             name=model_name,
             version=version,
             architecture=architecture,
+            architecture_profile="default",
             minio_model_path=minio_path,
             status=ModelStatus.completed,
             is_system=True
