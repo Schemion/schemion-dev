@@ -18,14 +18,14 @@ engine = create_engine(DB_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 minio_client = Minio(
-    MINIO_ENDPOINT,
+    endpoint=MINIO_ENDPOINT,
     access_key=MINIO_ACCESS_KEY,
     secret_key=MINIO_SECRET_KEY,
     secure=False
 )
 
-if not minio_client.bucket_exists(MINIO_BUCKET):
-    minio_client.make_bucket(MINIO_BUCKET)
+if not minio_client.bucket_exists(bucket_name=MINIO_BUCKET):
+    minio_client.make_bucket(bucket_name=MINIO_BUCKET)
 
 Base = declarative_base()
 
@@ -79,9 +79,9 @@ def upload_to_minio(file_path, model_name):
     minio_path = f"system/{new_filename}"
 
     minio_client.fput_object(
-        MINIO_BUCKET,
-        minio_path,
-        file_path,
+        bucket_name=MINIO_BUCKET,
+        object_name=minio_path,
+        file_path=file_path,
         content_type="application/octet-stream"
     )
 
@@ -90,6 +90,7 @@ def upload_to_minio(file_path, model_name):
 
 
 if __name__ == "__main__":
+    os.chdir(os.getcwd())
     for filename in os.listdir(MODELS_DIR):
         if filename.endswith(('.pt', '.pth')):
             file_path = os.path.join(MODELS_DIR, filename)
