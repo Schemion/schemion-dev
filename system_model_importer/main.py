@@ -1,7 +1,7 @@
 import os
 import uuid
 from enum import Enum as DefaultEnum
-from sqlalchemy import create_engine, Column, String, DateTime, Boolean, Enum, func
+from sqlalchemy import create_engine, Column, String, DateTime, Boolean, Enum, func, ARRAY, Text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import sessionmaker
@@ -43,6 +43,7 @@ class Model(Base):
     version = Column(String(50), nullable=False)
     architecture = Column(String(50), nullable=False)
     architecture_profile = Column(String(50), nullable=False)
+    classes = Column(ARRAY(Text), nullable=True)
     minio_model_path = Column(String(512), nullable=False)
     status = Column(Enum(ModelStatus), default=ModelStatus.completed)
     user_id = Column(UUID(as_uuid=True), nullable=True)
