@@ -4,3 +4,6 @@
 [submodule "schemion-api"]
 	path = schemion-api
 	url = https://github.com/Schemion/schemion-api.git
+[submodule "schemion-training"]
+	path = schemion-training
+	url = git@github.com:Schemion/schemion-training.git
