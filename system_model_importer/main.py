@@ -40,12 +40,10 @@ class Model(Base):
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     name = Column(String(255), nullable=False)
-    version = Column(String(50), nullable=False)
     architecture = Column(String(50), nullable=False)
     architecture_profile = Column(String(50), nullable=False)
     classes = Column(ARRAY(Text), nullable=True)
     minio_model_path = Column(String(512), nullable=False)
-    status = Column(Enum(ModelStatus), default=ModelStatus.completed)
     user_id = Column(UUID(as_uuid=True), nullable=True)
     is_system = Column(Boolean, default=False)
     base_model_id = Column(UUID(as_uuid=True), nullable=True)
@@ -54,16 +52,14 @@ class Model(Base):
 
 
 
-def add_model_to_db(model_name, version, architecture, minio_path):
+def add_model_to_db(model_name, architecture, minio_path):
     db = SessionLocal()
     try:
         new_model = Model(
             name=model_name,
-            version=version,
             architecture=architecture,
             architecture_profile="default",
             minio_model_path=minio_path,
-            status=ModelStatus.completed,
             is_system=True
         )
         db.add(new_model)
@@ -111,7 +107,6 @@ if __name__ == "__main__":
 
                 add_model_to_db(
                     model_name=model_name,
-                    version="1.0",
                     architecture=architecture,
                     minio_path=minio_path
                 )

@@ -6,7 +6,6 @@ services:
     restart: always
     depends_on:
       - database
-      - rabbitmq
       - minio
     ports:
       - "8000:8000"
@@ -15,6 +14,18 @@ services:
     command:
       [ "/wait-for-it.sh", "database:5432", "--", "sh", "-c", "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 1" ]
 
+  worker:
+    build:
+      context: ./schemion-api
+      dockerfile: Dockerfile
+    restart: always
+    depends_on:
+      - redis
+    volumes:
+      - ./schemion-api:/app
+    command:
+      [ "celery", "-A", "app.infrastructure.celery_app.celery_app", "worker", "--loglevel=info" ]
+
   trainer:
     build:
       context: ./schemion-training
@@ -22,12 +33,12 @@ services:
     restart: always
     depends_on:
       - database
-      - rabbitmq
       - minio
+      - redis
     volumes:
       - ./schemion-training:/app
     command:
-      [ "/wait-for-it.sh", "rabbitmq:5672", "--", "sh", "-c", "python app/main.py" ]
+      [ "celery", "-A", "app.infrastructure.celery_app.celery_app", "worker", "--loglevel=info" ]
   
   inference:
     build:
@@ -36,12 +47,12 @@ services:
     restart: always
     depends_on:
       - database
-      - rabbitmq
+      - redis
       - minio
     volumes:
       - ./schemion-inference:/app
     command:
-      ["/wait-for-it.sh", "rabbitmq:5672", "--", "sh", "-c", "python app/main.py" ]
+      [ "celery", "-A", "app.infrastructure.celery_app.celery_app", "worker", "--loglevel=info" ]
 
   database:
     image: postgres:16
@@ -65,19 +76,6 @@ services:
       - minio_data:/data
     command: server /data --console-address ":9001"
 
-  rabbitmq:
-    image: rabbitmq:3-management
-    container_name: rabbitmq
-    restart: always
-    ports:
-      - "5672:5672"
-      - "15672:15672"
-    environment:
-      RABBITMQ_DEFAULT_USER: admin
-      RABBITMQ_DEFAULT_PASS: admin
-    volumes:
-      - rabbitmq_data:/var/lib/rabbitmq
-
   redis:
     image: redis:7-alpine
     restart: always
@@ -94,5 +92,4 @@ services:
 volumes:
   postgres_data:
   minio_data:
-  rabbitmq_data:
   cache:
