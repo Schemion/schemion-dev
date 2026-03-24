@@ -23,8 +23,11 @@ services:
       - database
       - minio
       - redis
+      - bob-the-broker
     volumes:
       - ./schemion-training:/app
+    command:
+      [ "/wait-for-it.sh", "database:5432", "--", "/wait-for-it.sh", "bob-the-broker:50051", "--", "python", "-m", "app.main" ]
   
   inference:
     build:
@@ -35,17 +38,18 @@ services:
       - database
       - redis
       - minio
+      - bob-the-broker
     volumes:
       - ./schemion-inference:/app
+    command:
+      [ "/wait-for-it.sh", "database:5432", "--", "/wait-for-it.sh", "bob-the-broker:50051", "--", "python", "-m", "app.infrastructure.main" ]
 
   bob-the-broker:
-    image: ghcr.io/schemion/bob-the-broker:v2.1
+    image: ghcr.io/schemion/bob-the-broker:v2.2
     container_name: bob-the-broker
     ports:
       - "50051:50051"
     restart: unless-stopped
-    networks:
-      - schemion-network
 
   database:
     image: postgres:16
