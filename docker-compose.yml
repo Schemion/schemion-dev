@@ -26,6 +26,13 @@ services:
       - bob-the-broker
     volumes:
       - ./schemion-training:/app
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
     command:
       [ "/wait-for-it.sh", "database:5432", "--", "/wait-for-it.sh", "bob-the-broker:50051", "--", "python", "-m", "app.main" ]
   
