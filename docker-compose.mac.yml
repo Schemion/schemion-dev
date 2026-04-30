@@ -1,0 +1,93 @@
+services:
+  server:
+    build: 
+      context: ./schemion-api
+      dockerfile: Dockerfile
+    restart: always
+    depends_on:
+      - database
+      - minio
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./schemion-api:/app
+    command:
+      [ "/wait-for-it.sh", "database:5432", "--", "sh", "-c", "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 1" ]
+
+  trainer:
+    build:
+      context: ./schemion-training
+      dockerfile: Dockerfile
+    restart: always
+    depends_on:
+      - database
+      - minio
+      - redis
+      - bob-the-broker
+    volumes:
+      - ./schemion-training:/app
+    command:
+      [ "/wait-for-it.sh", "database:5432", "--", "/wait-for-it.sh", "bob-the-broker:50051", "--", "python", "-m", "app.main" ]
+  
+  inference:
+    build:
+      context: ./schemion-inference
+      dockerfile: Dockerfile
+    restart: always
+    depends_on:
+      - database
+      - redis
+      - minio
+      - bob-the-broker
+    volumes:
+      - ./schemion-inference:/app
+    command:
+      [ "/wait-for-it.sh", "database:5432", "--", "/wait-for-it.sh", "bob-the-broker:50051", "--", "python", "-m", "app.infrastructure.main" ]
+
+  bob-the-broker:
+    image: ghcr.io/schemion/bob-the-broker:v2.2
+    container_name: bob-the-broker
+    ports:
+      - "50051:50051"
+    restart: unless-stopped
+
+  database:
+    image: postgres:16
+    restart: always
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: schemion
+    ports:
+      - "5432:5432"
+
+  minio:
+    image: minio/minio:RELEASE.2025-09-07T16-13-09Z
+    restart: always
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+    command: server /data --console-address ":9001"
+
+  redis:
+    image: redis:7-alpine
+    restart: always
+    ports:
+      - "6379:6379"
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=adminpass
+
+    command: redis-server --save 120 1 --loglevel warning --requirepass adminpass
+    volumes:
+      - cache:/data
+volumes:
+  postgres_data:
+  minio_data:
+  cache:
