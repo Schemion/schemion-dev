@@ -2,3 +2,6 @@
 .venv
 .vscode/
 system_model_importer/models/*
+nginx/dist/*
+*.pt
+*pth

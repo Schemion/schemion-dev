@@ -1,4 +1,15 @@
 services:
+  nginx:
+    image: nginx:1.27-alpine
+    restart: always
+    depends_on:
+      - server
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/dist:/usr/share/nginx/html:ro
+
   server:
     build: 
       context: ./schemion-api
