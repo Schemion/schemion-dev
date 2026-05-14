@@ -19,6 +19,7 @@ services:
       - database
       - minio
       - bob-the-broker
+      - schemion-mail
     ports:
       - "8000:8000"
     volumes:
@@ -34,7 +35,6 @@ services:
     depends_on:
       - database
       - minio
-      - redis
       - bob-the-broker
     volumes:
       - ./schemion-training:/app
@@ -48,7 +48,6 @@ services:
     restart: always
     depends_on:
       - database
-      - redis
       - minio
       - bob-the-broker
     volumes:
@@ -62,6 +61,24 @@ services:
     ports:
       - "50051:50051"
     restart: unless-stopped
+
+  schemion-mail:
+    build:
+      context: ./schemion-mail
+      dockerfile: Dockerfile
+    restart: always
+    depends_on:
+      - database
+    environment:
+      DATABASE_URL: postgresql+psycopg://admin:admin@database:5432/schemion
+      SMTP_HOSTNAME: schemion-mail
+      SMTP_BIND_HOST: 0.0.0.0
+      SMTP_BIND_PORT: 1025
+    ports:
+      - "1025:1025"
+    volumes:
+      - ./schemion-api/wait-for-it.sh:/wait-for-it.sh:ro
+    command: [ "/wait-for-it.sh", "database:5432", "--", "sh", "-c", "alembic upgrade head && python -m src.main" ]
 
   database:
     image: postgres:16
@@ -86,19 +103,6 @@ services:
       - minio_data:/data
     command: server /data --console-address ":9001"
 
-  redis:
-    image: redis:7-alpine
-    restart: always
-    ports:
-      - "6379:6379"
-    environment:
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
-      - REDIS_PASSWORD=adminpass
-
-    command: redis-server --save 120 1 --loglevel warning --requirepass adminpass
-    volumes:
-      - cache:/data
 volumes:
   postgres_data:
   minio_data:

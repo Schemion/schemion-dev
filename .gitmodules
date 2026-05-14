@@ -7,3 +7,6 @@
 [submodule "schemion-training"]
 	path = schemion-training
 	url = git@github.com:Schemion/schemion-training.git
+[submodule "schemion-mail"]
+	path = schemion-mail
+	url = https://github.com/Schemion/schemion-mail.git

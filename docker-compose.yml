@@ -19,6 +19,7 @@ services:
       - database
       - minio
       - bob-the-broker
+      - schemion-mail
     ports:
       - "8000:8000"
     volumes:
@@ -67,6 +68,24 @@ services:
     ports:
       - "50051:50051"
     restart: unless-stopped
+
+  schemion-mail:
+    build:
+      context: ./schemion-mail
+      dockerfile: Dockerfile
+    restart: always
+    depends_on:
+      - database
+    environment:
+      DATABASE_URL: postgresql+psycopg://admin:admin@database:5432/schemion
+      SMTP_HOSTNAME: schemion-mail
+      SMTP_BIND_HOST: 0.0.0.0
+      SMTP_BIND_PORT: 1025
+    ports:
+      - "1025:1025"
+    volumes:
+      - ./schemion-api/wait-for-it.sh:/wait-for-it.sh:ro
+    command: [ "/wait-for-it.sh", "database:5432", "--", "sh", "-c", "alembic upgrade head && python -m src.main" ]
 
   database:
     image: postgres:16
