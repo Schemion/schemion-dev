@@ -22,6 +22,8 @@ services:
       - schemion-mail
     ports:
       - "8000:8000"
+    environment:
+      MINIO_PUBLIC_ENDPOINT: ${MINIO_PUBLIC_ENDPOINT:-files.localhost}
     volumes:
       - ./schemion-api:/app
     command:

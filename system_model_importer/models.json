@@ -1,0 +1,44 @@
+[
+  {
+    "name": "YOLO12n",
+    "file": "yolo12n.pt",
+    "architecture": "yolo",
+    "architecture_profile": "yolo12n.pt"
+  },
+  {
+    "name": "YOLO12s",
+    "file": "yolo12s.pt",
+    "architecture": "yolo",
+    "architecture_profile": "yolo12s.pt"
+  },
+  {
+    "name": "YOLO12m",
+    "file": "yolo12m.pt",
+    "architecture": "yolo",
+    "architecture_profile": "yolo12m.pt"
+  },
+  {
+    "name": "YOLO12l",
+    "file": "yolo12l.pt",
+    "architecture": "yolo",
+    "architecture_profile": "yolo12l.pt"
+  },
+  {
+    "name": "YOLO12x",
+    "file": "yolo12x.pt",
+    "architecture": "yolo",
+    "architecture_profile": "yolo12x.pt"
+  },
+  {
+    "name": "Faster R-CNN ResNet50 FPN",
+    "file": "fasterrcnn_resnet50_fpn_coco-258fb6c6.pth",
+    "architecture": "faster_rcnn",
+    "architecture_profile": "resnet50_fpn"
+  },
+  {
+    "name": "Faster R-CNN ResNet50 FPN v2",
+    "file": "fasterrcnn_resnet50_fpn_v2_coco-dd69338a.pth",
+    "architecture": "faster_rcnn",
+    "architecture_profile": "resnet50_fpn_v2"
+  }
+]
