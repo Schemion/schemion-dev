@@ -1,0 +1,3 @@
+**/test/
+**/.pytest_cache/
+system_model_importer/
